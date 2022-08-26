@@ -9,6 +9,7 @@ jeecg-boot的starter启动模块独立出来，简化项目，便于维护。
   spring-cloud-alibaba：2021.0.1.0
 
 
+
 ### jeecg-boot-starter项目说明
 
 ``` 
@@ -23,6 +24,13 @@ jeecg-boot的starter启动模块独立出来，简化项目，便于维护。
     ├── jeecg-boot-starter-mongon          -- mongostarter
 ```
 
-### 技术文档
+### 技术支持
+
+本项目关闭issue，使用中遇到问题或BUG可以在 [JeecgBoot主项目上提Issues](https://github.com/jeecgboot/jeecg-boot/issues/new)
+
+官方支持： http://jeecg.com/doc/help
+
+
+### 开发文档
 
 - http://doc.jeecg.com/2043894
