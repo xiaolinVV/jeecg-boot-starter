@@ -41,6 +41,7 @@ import org.jeecg.common.util.SpringContextUtils;
 import org.jeecg.modules.flowable.apithird.business.entity.FlowMyBusiness;
 import org.jeecg.modules.flowable.apithird.business.service.impl.FlowMyBusinessServiceImpl;
 import org.jeecg.modules.flowable.apithird.entity.ActStatus;
+import org.jeecg.modules.flowable.apithird.entity.SysCategory;
 import org.jeecg.modules.flowable.apithird.entity.SysUser;
 import org.jeecg.modules.flowable.apithird.service.FlowCallBackServiceI;
 import org.jeecg.modules.flowable.apithird.service.IFlowThirdService;
@@ -932,6 +933,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             flowMyBusinessMap = flowMyBusinessService.getByProcessInstanceIds(processInstanceIds);
         }
 
+        List<SysCategory> allCategory = iFlowThirdService.getAllCategory();
         for (Task task : taskList) {
             FlowTaskDto flowTask = new FlowTaskDto();
             // 当前流程信息
@@ -949,6 +951,8 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             flowTask.setProcDefVersion(pd.getVersion());
             flowTask.setProcInsId(task.getProcessInstanceId());
             flowTask.setCategory(pd.getCategory());
+            String category_dictText = CollUtil.emptyIfNull(allCategory).stream().filter(sysCategory -> StrUtil.equals(pd.getCategory(), sysCategory.getId())).map(SysCategory::getName).findFirst().orElse("");
+            flowTask.setCategory_dictText(category_dictText);
 
             // 流程发起人信息
             HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
@@ -1005,6 +1009,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
         if (CollUtil.isNotEmpty(processInstanceIds)) {
             flowMyBusinessMap = flowMyBusinessService.getByProcessInstanceIds(processInstanceIds);
         }
+        List<SysCategory> allCategory = iFlowThirdService.getAllCategory();
         for (HistoricTaskInstance histTask : historicTaskInstanceList) {
             FlowTaskDto flowTask = new FlowTaskDto();
             // 当前流程信息
@@ -1027,6 +1032,8 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             flowTask.setProcInsId(histTask.getProcessInstanceId());
             flowTask.setHisProcInsId(histTask.getProcessInstanceId());
             flowTask.setCategory(pd.getCategory());
+            String category_dictText = CollUtil.emptyIfNull(allCategory).stream().filter(sysCategory -> StrUtil.equals(pd.getCategory(), sysCategory.getId())).map(SysCategory::getName).findFirst().orElse("");
+            flowTask.setCategory_dictText(category_dictText);
 
             // 流程发起人信息
             HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()

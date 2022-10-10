@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jeecg.modules.flowable.apithird.entity.ActStatus;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -66,8 +67,8 @@ public class FlowMyBusinessDto implements Serializable {
 	/**流程状态说明，有：启动  撤回  驳回  审批中  审批通过  审批异常*/
     @TableField(exist = false)
     @ApiModelProperty(value = "流程状态说明，有：启动  撤回  驳回  审批中  审批通过  审批异常")
-//    @Dict(dicCode = "act_status")
     private String actStatus;
+    private String actStatus_dictText;
 	/**当前的节点实例上的Id*/
     @TableField(exist = false)
     @ApiModelProperty(value = "当前的节点Id")
@@ -103,4 +104,8 @@ public class FlowMyBusinessDto implements Serializable {
 	/**流程变量*/
 	@TableField(exist = false)
     private Map<String,Object> values;
+
+    public String getActStatus_dictText() {
+        return ActStatus.getTextByVal(this.actStatus);
+    }
 }
