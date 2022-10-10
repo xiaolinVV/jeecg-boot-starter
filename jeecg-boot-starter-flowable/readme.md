@@ -204,7 +204,7 @@ doneUsers ：审批处理过的人，相当于已办
 
 设计案例
 
-![img.png](img.png)
+![./img.png](img.png)
 
 使用：
 
