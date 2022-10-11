@@ -68,6 +68,7 @@ public class FlowMyBusinessDto implements Serializable {
     @TableField(exist = false)
     @ApiModelProperty(value = "流程状态说明，有：启动  撤回  驳回  审批中  审批通过  审批异常")
     private String actStatus;
+    @TableField(exist = false)
     private String actStatus_dictText;
 	/**当前的节点实例上的Id*/
     @TableField(exist = false)
