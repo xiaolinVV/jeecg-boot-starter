@@ -1085,7 +1085,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
 
             hisTaskList.add(flowTask);
         }
-        page.setTotal(hisTaskList.size());
+        page.setTotal(taskInstanceQuery.count());
         page.setRecords(hisTaskList);
 //        Map<String, Object> result = new HashMap<>();
 //        result.put("result",page);
