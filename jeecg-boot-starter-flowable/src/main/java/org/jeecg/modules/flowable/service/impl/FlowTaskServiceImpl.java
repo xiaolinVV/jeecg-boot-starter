@@ -917,70 +917,82 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
      * @return
      */
     @Override
-    public Result<Page<FlowTaskDto>> todoList(Integer pageNum, Integer pageSize) {
-        Page<FlowTaskDto> page = new Page<>();
-        String username = iFlowThirdService.getLoginUser().getUsername();
-        TaskQuery taskQuery = taskService.createTaskQuery();
-        taskQuery.taskCandidateOrAssigned(username).orderByTaskCreateTime().desc();
-        page.setTotal(taskQuery.count());
-        List<Task> taskList = taskQuery.listPage((pageNum - 1)*pageSize, pageSize);
-        List<FlowTaskDto> flowList = new ArrayList<>();
-
-        //流程业务信息
-        List<String> processInstanceIds = taskList.stream().map(TaskInfo::getProcessInstanceId).collect(Collectors.toList());
-        Map<String, FlowMyBusiness> flowMyBusinessMap = MapUtil.empty();
-        if (CollUtil.isNotEmpty(processInstanceIds)) {
-            flowMyBusinessMap = flowMyBusinessService.getByProcessInstanceIds(processInstanceIds);
-        }
-
-        List<SysCategory> allCategory = iFlowThirdService.getAllCategory();
-        for (Task task : taskList) {
-            FlowTaskDto flowTask = new FlowTaskDto();
-            // 当前流程信息
-            flowTask.setTaskId(task.getId());
-            flowTask.setTaskDefKey(task.getTaskDefinitionKey());
-            flowTask.setCreateTime(task.getCreateTime());
-            flowTask.setProcDefId(task.getProcessDefinitionId());
-            flowTask.setTaskName(task.getName());
-            // 流程定义信息
-            ProcessDefinition pd = repositoryService.createProcessDefinitionQuery()
-                    .processDefinitionId(task.getProcessDefinitionId())
-                    .singleResult();
-            flowTask.setDeployId(pd.getDeploymentId());
-            flowTask.setProcDefName(pd.getName());
-            flowTask.setProcDefVersion(pd.getVersion());
-            flowTask.setProcInsId(task.getProcessInstanceId());
-            flowTask.setCategory(pd.getCategory());
-            String category_dictText = CollUtil.emptyIfNull(allCategory).stream().filter(sysCategory -> StrUtil.equals(pd.getCategory(), sysCategory.getId())).map(SysCategory::getName).findFirst().orElse("");
-            flowTask.setCategory_dictText(category_dictText);
-
-            // 流程发起人信息
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                    .processInstanceId(task.getProcessInstanceId())
-                    .singleResult();
-            SysUser startUser = iFlowThirdService.getUserByUsername(historicProcessInstance.getStartUserId());
-            List<String> departNamesByUsername = iFlowThirdService.getDepartNamesByUsername(historicProcessInstance.getStartUserId());
-            flowTask.setStartUserId(startUser.getUsername());
-            flowTask.setStartUserName(startUser.getRealname());
-            flowTask.setStartDeptName(CollUtil.join(departNamesByUsername,"，"));
+    public Result<Page<FlowTaskDto>> todoList(Integer pageNum, Integer pageSize,
+                                              String itemName,
+                                              java.util.Date applyTimeBegin,
+                                              java.util.Date applyTimeEnd,
+                                              String applyKeshi,
+                                              String applyPeople) {
+            Page<FlowTaskDto> page = new Page<>();
+            String username = iFlowThirdService.getLoginUser().getUsername();
+            TaskQuery taskQuery = taskService.createTaskQuery();
+            taskQuery.taskCandidateOrAssigned(username).orderByTaskCreateTime().desc();
+            if (!StrUtil.isAllEmpty(itemName, applyKeshi, applyPeople) || (applyTimeBegin != null && applyTimeEnd != null)) {
+                List<String> insIds = flowMyBusinessService.getProcessInstanceIds(itemName, applyTimeBegin, applyTimeEnd, applyKeshi, applyPeople);
+                if (CollUtil.isEmpty(insIds)) {
+                    page.setTotal(0);
+                    return Result.OK(page);
+                }
+                taskQuery.processInstanceIdIn(insIds);
+            }
+            List<Task> taskList = taskQuery.listPage((pageNum - 1) * pageSize, pageSize);
+            List<FlowTaskDto> flowList = new ArrayList<>();
 
             //流程业务信息
-            FlowMyBusiness flowMyBusiness = flowMyBusinessMap.get(task.getProcessInstanceId());
-            if (flowMyBusiness != null) {
-                flowTask.setTitle(flowMyBusiness.getTitle());
-                flowTask.setBpmStatus(flowMyBusiness.getBpmStatus());
-                flowTask.setDataId(flowMyBusiness.getDataId());
-                flowTask.setTodoUsers(flowMyBusiness.getTodoUsers());
-                flowTask.setDoneUsers(flowMyBusiness.getDoneUsers());
-                flowTask.setJimuReportId(flowMyBusiness.getJimuReportId());
-                flowTask.setPcFormUrl(flowMyBusiness.getPcFormUrl());
+            List<String> processInstanceIds = taskList.stream().map(TaskInfo::getProcessInstanceId).collect(Collectors.toList());
+            Map<String, FlowMyBusiness> flowMyBusinessMap = MapUtil.empty();
+            if (CollUtil.isNotEmpty(processInstanceIds)) {
+                flowMyBusinessMap = flowMyBusinessService.getByProcessInstanceIds(processInstanceIds);
             }
-            flowList.add(flowTask);
-        }
 
-        page.setRecords(flowList);
-        return Result.OK(page);
-    }
+            List<SysCategory> allCategory = iFlowThirdService.getAllCategory();
+            for (Task task : taskList) {
+                FlowTaskDto flowTask = new FlowTaskDto();
+                // 当前流程信息
+                flowTask.setTaskId(task.getId());
+                flowTask.setTaskDefKey(task.getTaskDefinitionKey());
+                flowTask.setCreateTime(task.getCreateTime());
+                flowTask.setProcDefId(task.getProcessDefinitionId());
+                flowTask.setTaskName(task.getName());
+                // 流程定义信息
+                ProcessDefinition pd = repositoryService.createProcessDefinitionQuery()
+                        .processDefinitionId(task.getProcessDefinitionId())
+                        .singleResult();
+                flowTask.setDeployId(pd.getDeploymentId());
+                flowTask.setProcDefName(pd.getName());
+                flowTask.setProcDefVersion(pd.getVersion());
+                flowTask.setProcInsId(task.getProcessInstanceId());
+                flowTask.setCategory(pd.getCategory());
+                String category_dictText = CollUtil.emptyIfNull(allCategory).stream().filter(sysCategory -> StrUtil.equals(pd.getCategory(), sysCategory.getId())).map(SysCategory::getName).findFirst().orElse("");
+                flowTask.setCategory_dictText(category_dictText);
+
+                // 流程发起人信息
+                HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                        .processInstanceId(task.getProcessInstanceId())
+                        .singleResult();
+                SysUser startUser = iFlowThirdService.getUserByUsername(historicProcessInstance.getStartUserId());
+                List<String> departNamesByUsername = iFlowThirdService.getDepartNamesByUsername(historicProcessInstance.getStartUserId());
+                flowTask.setStartUserId(startUser.getUsername());
+                flowTask.setStartUserName(startUser.getRealname());
+                flowTask.setStartDeptName(CollUtil.join(departNamesByUsername, "，"));
+
+                //流程业务信息
+                FlowMyBusiness flowMyBusiness = flowMyBusinessMap.get(task.getProcessInstanceId());
+                if (flowMyBusiness != null) {
+                    flowTask.setTitle(flowMyBusiness.getTitle());
+                    flowTask.setBpmStatus(flowMyBusiness.getBpmStatus());
+                    flowTask.setDataId(flowMyBusiness.getDataId());
+                    flowTask.setTodoUsers(flowMyBusiness.getTodoUsers());
+                    flowTask.setDoneUsers(flowMyBusiness.getDoneUsers());
+                    flowTask.setJimuReportId(flowMyBusiness.getJimuReportId());
+                    flowTask.setPcFormUrl(flowMyBusiness.getPcFormUrl());
+                }
+                flowList.add(flowTask);
+            }
+
+            page.setRecords(flowList);
+            return Result.OK(page);
+        }
 
 
     /**
@@ -991,7 +1003,11 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
      * @return
      */
     @Override
-    public Result<Page<FlowTaskDto>> finishedList(Integer pageNum, Integer pageSize) {
+    public Result<Page<FlowTaskDto>> finishedList (Integer pageNum, Integer pageSize,String itemName,
+                                                   java.util.Date applyTimeBegin,
+                                                   java.util.Date applyTimeEnd,
+                                                   String applyKeshi,
+                                                   String applyPeople) {
         Page<FlowTaskDto> page = new Page<>();
         String username = iFlowThirdService.getLoginUser().getUsername();
         HistoricTaskInstanceQuery taskInstanceQuery = historyService.createHistoricTaskInstanceQuery()
@@ -1000,7 +1016,17 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                 .taskAssignee(username)
                 .orderByHistoricTaskInstanceEndTime()
                 .desc();
-        List<HistoricTaskInstance> historicTaskInstanceList = taskInstanceQuery.listPage((pageNum - 1)*pageSize, pageSize);
+
+        if (!StrUtil.isAllEmpty(itemName, applyKeshi, applyPeople) || (applyTimeBegin != null && applyTimeEnd != null)) {
+            List<String> insIds = flowMyBusinessService.getProcessInstanceIds(itemName, applyTimeBegin, applyTimeEnd, applyKeshi, applyPeople);
+            if (CollUtil.isEmpty(insIds)) {
+                page.setTotal(0);
+                return Result.OK(page);
+            }
+            taskInstanceQuery.processInstanceIdIn(insIds);
+        }
+
+        List<HistoricTaskInstance> historicTaskInstanceList = taskInstanceQuery.listPage((pageNum - 1) * pageSize, pageSize);
         List<FlowTaskDto> hisTaskList = Lists.newArrayList();
 
         //流程业务信息
@@ -1043,7 +1069,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
             flowTask.setStartUserId(startUser.getUsername());
             flowTask.setStartUserName(startUser.getRealname());
             List<String> departNamesByUsername = iFlowThirdService.getDepartNamesByUsername(historicProcessInstance.getStartUserId());
-            flowTask.setStartDeptName(CollUtil.join(departNamesByUsername,"，"));
+            flowTask.setStartDeptName(CollUtil.join(departNamesByUsername, "，"));
 
             //流程业务信息
             FlowMyBusiness flowMyBusiness = flowMyBusinessMap.get(histTask.getProcessInstanceId());

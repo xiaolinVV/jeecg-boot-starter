@@ -114,7 +114,12 @@ public interface IFlowTaskService {
      * @param pageSize 每页条数
      * @return
      */
-    Result<Page<FlowTaskDto>> todoList(Integer pageNum, Integer pageSize);
+    Result<Page<FlowTaskDto>> todoList(Integer pageNum, Integer pageSize,
+                                       String itemName,
+                                       java.util.Date applyTimeBegin,
+                                       java.util.Date applyTimeEnd,
+                                       String applyKeshi,
+                                       String applyPeople);
 
 
     /**
@@ -124,7 +129,13 @@ public interface IFlowTaskService {
      * @param pageSize 每页条数
      * @return
      */
-    Result<Page<FlowTaskDto>> finishedList(Integer pageNum, Integer pageSize);
+    Result<Page<FlowTaskDto>> finishedList(Integer pageNum,
+                                           Integer pageSize,
+                                           String itemName,
+                                           java.util.Date applyTimeBegin,
+                                           java.util.Date applyTimeEnd,
+                                           String applyKeshi,
+                                           String applyPeople) ;
 
     /**
      * 流程历史流转记录

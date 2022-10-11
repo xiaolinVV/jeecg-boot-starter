@@ -13,6 +13,7 @@ import org.jeecg.modules.flowable.domain.dto.FlowViewerDto;
 import org.jeecg.modules.flowable.domain.vo.FlowTaskVo;
 import org.jeecg.modules.flowable.service.IFlowTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
@@ -59,15 +60,25 @@ public class FlowTaskController {
     @ApiOperation(value = "获取待办列表", response = FlowTaskDto.class)
     @GetMapping(value = "/todoList")
     public Result<Page<FlowTaskDto>> todoList(@ApiParam(value = "当前页码", required = true) @RequestParam Integer pageNo,
-                                              @ApiParam(value = "每页条数", required = true) @RequestParam Integer pageSize) {
-        return flowTaskService.todoList(pageNo, pageSize);
+                                              @ApiParam(value = "每页条数", required = true) @RequestParam Integer pageSize,
+                                              @RequestParam(required = false) String itemName,
+                                              @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") java.util.Date applyTimeBegin,
+                                              @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd")java.util.Date applyTimeEnd,
+                                              @RequestParam(required = false) String applyKeshi,
+                                              @RequestParam(required = false) String applyPeople) {
+        return flowTaskService.todoList(pageNo, pageSize,itemName,applyTimeBegin,applyTimeEnd,applyKeshi,applyPeople);
     }
 
     @ApiOperation(value = "获取已办任务", response = FlowTaskDto.class)
     @GetMapping(value = "/finishedList")
     public Result<Page<FlowTaskDto>> finishedList(@ApiParam(value = "当前页码", required = true) @RequestParam Integer pageNo,
-                                   @ApiParam(value = "每页条数", required = true) @RequestParam Integer pageSize) {
-        return flowTaskService.finishedList(pageNo, pageSize);
+                                                  @ApiParam(value = "每页条数", required = true) @RequestParam Integer pageSize,
+                                                  @RequestParam(required = false) String itemName,
+                                                  @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") java.util.Date applyTimeBegin,
+                                                  @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd")java.util.Date applyTimeEnd,
+                                                  @RequestParam(required = false) String applyKeshi,
+                                                  @RequestParam(required = false) String applyPeople)  {
+        return flowTaskService.finishedList(pageNo, pageSize,itemName,applyTimeBegin,applyTimeEnd,applyKeshi,applyPeople);
     }
 
 

@@ -2,6 +2,7 @@ package org.jeecg.modules.flowable.apithird.business.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.jeecg.modules.flowable.apithird.business.entity.FlowMyBusiness;
@@ -48,6 +49,23 @@ public class FlowMyBusinessServiceImpl extends ServiceImpl<FlowMyBusinessMapper,
         flowMyBusinessLambdaQueryWrapper.in(FlowMyBusiness::getProcessInstanceId,processInstanceIds);
         //如果保存数据前未调用必调的FlowCommonService.initActBusiness方法，就会有问题
         return list(flowMyBusinessLambdaQueryWrapper).stream().collect(Collectors.toMap(FlowMyBusiness::getProcessInstanceId, e -> e));
+    }
+
+    public List<String> getProcessInstanceIds(String itemName,
+                                              java.util.Date applyTimeBegin,
+                                              java.util.Date applyTimeEnd,
+                                              String proposerDeptName,
+                                              String applyPeople) {
+        LambdaQueryWrapper<FlowMyBusiness> flowMyBusinessLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        flowMyBusinessLambdaQueryWrapper.like(StrUtil.isNotBlank(itemName), FlowMyBusiness::getTitle, itemName);
+        flowMyBusinessLambdaQueryWrapper.like(StrUtil.isNotBlank(proposerDeptName), FlowMyBusiness::getProposerDeptName, proposerDeptName);
+        flowMyBusinessLambdaQueryWrapper.like(StrUtil.isNotBlank(applyPeople), FlowMyBusiness::getProposerName, applyPeople);
+        if (applyTimeBegin != null && applyTimeEnd != null) {
+            flowMyBusinessLambdaQueryWrapper.ge(FlowMyBusiness::getCreateTime, applyTimeBegin);
+            flowMyBusinessLambdaQueryWrapper.le(FlowMyBusiness::getCreateTime, applyTimeEnd);
+        }
+        List<FlowMyBusiness> list = list(flowMyBusinessLambdaQueryWrapper);
+        return list.stream().map(FlowMyBusiness::getProcessInstanceId).collect(Collectors.toList());
     }
 
 }
