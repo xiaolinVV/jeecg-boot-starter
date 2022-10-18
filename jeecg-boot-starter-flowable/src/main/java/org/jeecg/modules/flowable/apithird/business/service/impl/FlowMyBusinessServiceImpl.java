@@ -1,6 +1,7 @@
 package org.jeecg.modules.flowable.apithird.business.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -61,8 +62,8 @@ public class FlowMyBusinessServiceImpl extends ServiceImpl<FlowMyBusinessMapper,
         flowMyBusinessLambdaQueryWrapper.like(StrUtil.isNotBlank(proposerDeptName), FlowMyBusiness::getProposerDeptName, proposerDeptName);
         flowMyBusinessLambdaQueryWrapper.like(StrUtil.isNotBlank(applyPeople), FlowMyBusiness::getProposerName, applyPeople);
         if (applyTimeBegin != null && applyTimeEnd != null) {
-            flowMyBusinessLambdaQueryWrapper.ge(FlowMyBusiness::getCreateTime, applyTimeBegin);
-            flowMyBusinessLambdaQueryWrapper.le(FlowMyBusiness::getCreateTime, applyTimeEnd);
+            flowMyBusinessLambdaQueryWrapper.ge(FlowMyBusiness::getCreateTime, DateUtil.beginOfDay(applyTimeBegin));
+            flowMyBusinessLambdaQueryWrapper.le(FlowMyBusiness::getCreateTime, DateUtil.endOfDay(applyTimeEnd));
         }
         List<FlowMyBusiness> list = list(flowMyBusinessLambdaQueryWrapper);
         return list.stream().map(FlowMyBusiness::getProcessInstanceId).collect(Collectors.toList());
