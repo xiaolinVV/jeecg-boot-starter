@@ -5,7 +5,11 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * 用户对象 <br/>
@@ -135,12 +139,4 @@ public class SysUser {
      * 负责部门
      */
     private String departIds;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SysUser)) return false;
-        SysUser sysUser = (SysUser) o;
-        return Objects.equals(getId(), sysUser.getId());
-    }
 }

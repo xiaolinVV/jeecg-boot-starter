@@ -1470,7 +1470,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                         String userType = userTask.getAttributeValue(ProcessConstants.NAMASPASE, ProcessConstants.PROCESS_CUSTOM_USER_TYPE);
                     }
                 }
-                flowNextDto.setUserList(flowNextDto.getUserList().stream().distinct().collect(Collectors.toList()));
+                flowNextDto.setUserList(flowNextDto.getUserList().stream().filter(distinctByKey(SysUser::getUsername)).collect(Collectors.toList()));
                 return flowNextDto;
             }
         }
@@ -1529,5 +1529,14 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
         } else {
             return 0 + "秒";
         }
+    }
+
+    public static void main(String[] args) {
+        SysUser sysUser1 = new SysUser();
+        sysUser1.setId("1");
+        SysUser sysUser2 = new SysUser();
+        sysUser2.setId("1");
+        List<SysUser> sysUsers = CollUtil.newArrayList(sysUser1, sysUser2).stream().filter(distinctByKey(SysUser::getId)).collect(Collectors.toList());
+        System.out.println(sysUsers);
     }
 }
