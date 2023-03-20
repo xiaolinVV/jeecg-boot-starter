@@ -1497,7 +1497,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                 List<SysUser> usersByRoleId = iFlowThirdService.getUsersByRoleId(candidateGroup);
                 userList.addAll(usersByRoleId);
             }
-            return userList;
+            return userList.stream().distinct().collect(Collectors.toList());
         }
         return Lists.newArrayList();
     }

@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 用户对象 <br/>
@@ -135,4 +136,11 @@ public class SysUser {
      */
     private String departIds;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SysUser)) return false;
+        SysUser sysUser = (SysUser) o;
+        return Objects.equals(getId(), sysUser.getId());
+    }
 }
