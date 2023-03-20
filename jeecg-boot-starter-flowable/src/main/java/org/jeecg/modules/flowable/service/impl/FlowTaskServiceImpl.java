@@ -1470,6 +1470,7 @@ public class FlowTaskServiceImpl extends FlowServiceFactory implements IFlowTask
                         String userType = userTask.getAttributeValue(ProcessConstants.NAMASPASE, ProcessConstants.PROCESS_CUSTOM_USER_TYPE);
                     }
                 }
+                flowNextDto.setUserList(flowNextDto.getUserList().stream().distinct().collect(Collectors.toList()));
                 return flowNextDto;
             }
         }
